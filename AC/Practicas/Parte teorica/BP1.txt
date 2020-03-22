@@ -1,0 +1,46 @@
+Open Multi-Processing
+
+API: Capa de abstracción que permite al programador acceder
+cómodamente a través de una interfaz a un conjunto de
+funcionalidades. 
+
+OPENMP comprende directivas del compilador, funciones de biblioteca, variables de entorno.
+
+Las cláusulas especifican adicionalmente la acción o comportamiento, la ajustan
+Ej.: private, schedule, reduction … 
+(Creo que schedule te deja indicar como se va a realizar la asignacion de hebras)
+
+gcc -O2 -fopenmp -o HelloOMP HelloOMP.c (paralelismo)
+gcc  -O2  SumaVectores.c -o SumaVectores -lrt (normal)
+gcc -O2 -S SumaVectores.c -lrt (ensamblador)
+
+export OMP_NUM_THREADS=4
+omp_get_thread_num()
+
+atomic mas eficiente que critical y además atomic se ejecuta con una sola linea de codigo.
+
+DIRECTIVAS con barrera al final: 
+Parallel
+for
+sections
+single
+(worksharing)
+
+DIRECTIVAS con barreras al inicio:
+critical
+atomic
+
+PARALLEL:
+Un thread (master) crea un conjunto de threads cuando alcanza una directiva parallel.
+No reparte tareas entre threads.
+
+FOR: NO vale un do-while.
+
+MASTER: NO tiene barreras.
+
+EJEMPLO:
+Sea OMP_NUM_THREADS=4
+Si tenemos un for con 3 iteraciones, entonces hay 1 hebra que no ejecuta nada.
+Si tenemos un for con 5 iteraciones, entonces el for, antes de ejecutar divide las ejecuciones entre las hebras por tanto hay una hebra que realiza dos ejecuciones.
+Si tenemos un section con 3 section, hay una hebra que no se va a ejecutar.
+Si tenemos un section con 5 section, la primera hebra en terminar es la que ejecuta el siguiente.

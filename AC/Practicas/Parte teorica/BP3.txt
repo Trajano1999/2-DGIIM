@@ -1,0 +1,139 @@
+---------------
+|	BP3	|
+---------------
+
+En OpenMp se influye de 3 maneras:
+- Utilizando variables de control.
+- Utilizando variables de entorno.
+- Utilizando funciones de entorno.
+- Utilizando las clausulas.
+
+A parte de esto tiene unas variables de control interno que controlan todo lo que nosotros vamos a poder modificar/consultar.
+
+El orden de prioridad viene dado por (de menos a más): 
+- Variables de control internas: 
+nthreads-var, dyn-var, nest-var, run-sched-var, def-sched-var...
+- Variables de entorno:
+OMP_NUM_THREADS, OMP_DYNAMIC, OMP_NESTED, OMP _SCHEDULE...
+- Funciones de entorno:
+omp_get_dynamic(), omp_set_dynamic(), omp_get_max_threads()...
+- Cláusulas de las directivas:
+if, schedule, num_threads...
+
+				VARIABLES DE CONTROL
+
+dyn-var: ajuste dinamico del nº de threads. 
+Vale true/false.
+Puede consultarse con una función, puede modificarse con una función o con una ve.
+
+nthreads-var: threads para la siguiente región paralela.
+Es un número.
+Puede consultarse con una función, puede modificarse con una función o con una ve.
+
+thread-limit-var: Máximo nº threads para el programa.
+Es un número.
+Puede consultarse con una función, solo puede modificarse con una ve.
+
+nest-var: Paralelismo anidado.
+Valor por defecto es false.
+Tenemos un for anidado dentro de otro, entonces si ponemos un parallel for, ¿a que for afecta?
+Pues al que tiene justamente después. En cambio, si ponemos nest-var a  true, podemos poner otra directiva parallel para el siguiente for.
+Vale true/false.
+Puede consultarse con una función, puede modificarse con una función o con una ve.
+
+run-sched-var: Planificación de bucles para runtime.
+(kind, chunk) pero el chunk es opcional.
+Puede consultarse con una función, puede modificarse con una función o con una ve.
+
+def-sched-var: Planificación para bucles por defecto.
+(kind, chunk) pero el chunk es opcional. Kind puede ser static o dynamic.
+No puede ni consultarse ni modificarse.
+
+				VARIABLES DE ENTORNO
+
+dyn-var: 				OMP_DYNAMIC 
+nthreads-var: 		OMP_NUM _THREADS
+thread-limit-var: 		OMP_THREAD_LIMIT
+nest-var: 				OMP_NESTED
+run-sched-var: 		OMP_SCHEDULE
+
+				FUNCIONES DE ENTORNO DE EJECUCIÓN
+
+						CONSULTAR									MODIFICAR
+dyn-var: 				omp_get_dynamic() 						omp_set_dynamic()
+nthreads-var: 		omp_get_max_threads() 					omp_set_num_threads()
+thread-limit-var: 		omp_get_thread_limit()					---
+nest-var: 				omp_get_nested() 							omp_set_nested()
+run-sched-var: 		omp_get_schedule(&kind, &modifier) 	omp_set_schedule(kind, modifier)
+def-sched-var:		---												---
+
+Otras rutinas del entorno de ejecución:
+
+omp_get_thread_num()		Devuelve el identificador de la hebra
+omp_get_num_threads()		Obtiene el nº de threads que se están usando en una región paralela
+									Devuelve 1 en código secuencial
+omp_get_num_procs()			Devuelve el nº de procesadores disponibles para el programa en el momento de la ejecución.
+omp_in_parallel()				Devuelve true si se llama a la rutina dentro de una región parallel activa 
+									(puede estar dentro de varios parallel, basta que uno esté activo) y false en caso contrario.
+
+				CLAUSULAS PARA INTERACCIONAR CON EL ENTORNO
+
+if y num_threads SOLO para regiones parallel. Mientras que schedule es SOLO para bucles.
+
+Orden de precedencia para fijar el nº de threads (de más a menos):
+- El nº que resulte de evaluar la cláusula if.
+- El nº que fija la cláusula num_threads.
+- El nº que fija la función omp_set_num_threads().
+- El contenido de la variable de entorno OMP_NUM_THREADS.
+- Fijado por defecto por la implementación: normalmente el nº de cores de un nodo, aunque puede variar dinámicamente.
+
+if(condicion): No hay contrucción paralela si no se verifica la condición.
+Solo en construcciones con parallel.
+
+schedule (kind, chunk): 
+	1) kind  debe ser:
+	- static
+	- dynamic
+	- guided
+	- auto (llama a uno de los anteriores según la implementación)
+	- runtime
+	2) granularidad de distribución.
+Solo bucles.
+Por defecto tipo static, en la mayor parte de las implementaciones. 
+No recomendable asumir una granularidad por defecto.
+
+schedule static: Las iteraciones se dividen en unidades de chunk iteraciones.
+Se reparten threads de chunk en chunk con el método de round robin.
+El valor del chunk por defecto es nº iteraciones/nº hebras.
+
+schedule dynamic:  Distribución en tiempo de ejecución.
+Apropiado si se desconoce el tiempo de ejecución de las iteraciones.
+La unidad de distribución tiene chunk iteraciones.
+Añade sobrecarga adicional.
+Primero se le asigna el chunk y posteriormente se le van añadiendo chunk iteraciones conforme las hebras van terminando.
+El valor del chunk por defecto es 1.
+
+schedule guided: Distribución en tiempo de ejecución
+Apropiado si se desconoce el tiempo de ejecución de las iteraciones o su número.
+Comienza con bloque largo.
+El tamaño del bloque va menguando (nº iteraciones que restan / nº threads), no más pequeño que chunk (excepto la última).
+Sobrecarga extra, pero menos que dynamic para el mismo chunck.
+
+Ej: si tenemos 12 iteraciones y 2 hebras, hace: primero 12/2=6 iteraciones para el primero. Luego, 
+como son 6 las iteraciones que quedan, 6/2=3 iteraciones para el segundo, y aplica esta idea a los threads
+que van pidiendo iteraciones, pero siempre aplica minimo el número del chunk.
+
+schedule runtime: El tipo de distribución (static, dynamic o guided) se fija en tiempo de ejecución.
+El tipo de distribución depende de la variable de control run-sched-var.
+OMP_SCHEDULE para fijar el tipo de distribución.
+
+				FUNCIONES DE LA BIBLIOTECA OPENMP
+
+Funciones para usar sincronización con cerrojos:
+- omp_init_lock(), omp_destroy_lock(), omp_set_lock().
+- omp_unset_lock(), omp_test_lock().
+- omp_destroy_nest_lock, omp_set_nest_lock.
+- omp_unset_nest_lock, omp_test_nest_lock.
+
+Funciones para obtener tiempos de ejecución:
+- omp_get_wtime (), omp_get_wtick()

@@ -1,0 +1,4 @@
+Fichero: a280.tsp
+	Cercania-> 3157
+	Insercion-> 4489
+	Extremos-> 3179

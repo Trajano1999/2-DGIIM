@@ -1,0 +1,36 @@
+
+
+*******************************************************************************
+Tue Mar 19 18:23:37 2019
+
+
+FIT:    data read from "ResultadosAlgoritmo5"
+        format = z
+        #datapoints = 25
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = a*x*log(x)/log(2) + b
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   a             b            
+   0 4.6780493209e+15   0.00e+00  9.78e+06    1.000000e+00   1.000000e+00
+   4 6.6859937111e+07  -4.11e-04  9.78e+02    1.111754e-02   9.999617e-01
+
+After 4 iterations the fit converged.
+final sum of squares of residuals : 6.68599e+07
+rel. change during last iteration : -4.10709e-09
+
+degrees of freedom    (FIT_NDF)                        : 23
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 1704.98
+variance of residuals (reduced chisquare) = WSSR/ndf   : 2.90695e+06
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+a               = 0.0111175        +/- 4.633e-05    (0.4168%)
+b               = 0.999962         +/- 640.9        (6.409e+04%)
+
+correlation matrix of the fit parameters:
+                a      b      
+a               1.000 
+b              -0.847  1.000 

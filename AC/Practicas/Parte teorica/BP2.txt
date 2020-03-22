@@ -1,0 +1,60 @@
+---------------
+|	BP2	|
+---------------
+
+Las clausulas ajustan el comportamiento de las directivas.
+
+Directivas que SI aceptan clausulas:
+	-Parallel
+	-for			}
+	-sections		}	worksharing excepto nowait
+	-single			}
+DIrectivas que NO aceptan clausulas:
+	-master
+	-critical
+	-barrier
+	-atomic
+
+Tabla página 6:
+	shared --> parallel / default --> parallel
+	private --> todos / firstprivate --> todos
+	lastprivate --> for/section
+	reduction --> todos - single
+	copyprivate --> single
+
+Por defecto las variables son compartidas. mientras que las declaradas dentro son privadas.
+Excepciones (nunca se pueden hacer compartidas) : 
+	-Indices del bulce for, cuando tiene una directiva parallel delante.
+	-Las varibles estaticas (aquellas que pertenecen a la clase).
+
+					CLAUSULAS DE COMPARTICIÓN DE DATOS
+
+SHARED:   shared (list)
+Permite hacer compartidas las variables de esa lista.
+
+PRIVATE:   private (list)
+Crea en cada hebra una variable con igual nombre que la de la lista, dandole un valor indeterminado.
+
+LASTPRIVATE:   lastprivate(list)
+private + realiza una copia del valor de la hebra que ejecuta la última iteración en la variable de la lista. (for)
+private + realiza una copia del valor de la hebra que ejecuta el último section en la variable de la lista. (section)
+
+FIRSTPRIVATE:   firstprivate (list)
+private + crea en cada hebra una variable con igual nombre que la de la lista, dandole el valor que tiene. 
+
+DEFAULT:   default (none) / default (shared)
+Con none, el programador debe especificar el alcance de todas las variables usadas.
+Con shared, hace todas compartidas
+Solo puede haber una cláusula default. Tiene menos prioridad.
+			
+				CLAUSULAS DE COMUNICACIÓN/SINCRONIZACIÓN
+
+REDUCTION:   reduction(operator: list)
+Hace un firtsprivate, lastprivate y un atomic.
+Reducción a un único valor usando una operación, esto es, en el ejemplo:
+#pragma omp parallel for reduction(+: suma) lo que hace es realizar las operaciones dentro del for indicadas y luego se realiza la operación suma sobre todas las variables "suma" que tiene cada una de las hebras, dando como resultado la suma de todas.
+
+COPYPRIVATE:   copyprivate (list)
+Solo se usa con la directiva single.
+Permite que una variable privada de un thread se copie a las variables privadas del mismo nombre del resto de threads.
+

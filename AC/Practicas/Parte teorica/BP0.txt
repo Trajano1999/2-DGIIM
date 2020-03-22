@@ -1,0 +1,17 @@
+Examen de Prácticas de AC
+
+Intel XEON E5645: 6 -12 (cores físicos / cores lógicos).
+Atc-grid: 12-24 
+Clock - Directorio
+
+ssh: acceder a tu usuario del atc-grid y ejecutar comandos.
+sftp: subir, bajar archivos.
+
+pbsnodes: infor de los nodos del atcgrid.
+qsub: enviar un trabajo a ejecutar.
+qstat: chequear el estado de los trabajos.
+qdel: eliminar un trabajo.
+
+variables/vectores locales: pila.
+varibles/vectores restantes: heap.
+vectores globales: sección de datos.

@@ -1,0 +1,6 @@
+Las secuencias a estudiar son: 
+	juanma
+	antonia
+
+La secuencia resultante es: 
+	ana
